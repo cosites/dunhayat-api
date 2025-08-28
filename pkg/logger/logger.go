@@ -406,10 +406,6 @@ func getStackFrames() []map[string]any {
 	return result
 }
 
-func extractPackageName(funcFullName string) string {
-	return funcFullName
-}
-
 func framesToShortString(frames []map[string]any) string {
 	var parts []string
 	for _, f := range frames {
