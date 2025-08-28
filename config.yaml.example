@@ -1,0 +1,25 @@
+env: development
+log:
+  level: debug
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: dunhayat
+  sslmode: disable
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+server:
+  port: 8080
+  host: 0.0.0.0
+
+auth:
+  kavenegar_api_key: <api-key>
+  otp_template: authentication
