@@ -14,6 +14,7 @@ type Config struct {
 	Server   ServerConfig   `mapstructure:"server"`
 	Auth     AuthConfig     `mapstructure:"auth"`
 	Log      LogConfig      `mapstructure:"log"`
+	CORS     CORSConfig     `mapstructure:"cors"`
 }
 
 type DatabaseConfig struct {
@@ -44,6 +45,13 @@ type AuthConfig struct {
 
 type LogConfig struct {
 	Level string `mapstructure:"level"`
+}
+
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowed_origins"`
+	AllowedMethods   []string `mapstructure:"allowed_methods"`
+	AllowedHeaders   []string `mapstructure:"allowed_headers"`
+	AllowCredentials bool     `mapstructure:"allow_credentials"`
 }
 
 func Load() (*Config, error) {
@@ -95,6 +103,20 @@ func setDefaults() {
 
 	viper.SetDefault("env", "development")
 	viper.SetDefault("log.level", "info")
+
+	viper.SetDefault(
+		"cors.allowed_origins",
+		[]string{"*"},
+	)
+	viper.SetDefault(
+		"cors.allowed_methods",
+		[]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	)
+	viper.SetDefault(
+		"cors.allowed_headers",
+		[]string{"Content-Type", "Authorization"},
+	)
+	viper.SetDefault("cors.allow_credentials", false)
 }
 
 func (c *DatabaseConfig) GetDSN() string {
