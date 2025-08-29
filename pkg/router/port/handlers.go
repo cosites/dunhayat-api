@@ -1,33 +1,26 @@
 package port
 
 import (
-	"net/http"
+	"github.com/gofiber/fiber/v2"
 )
 
-type RouteRegistrar interface {
-	RegisterRoutes(mux *http.ServeMux)
-}
-
 type ProductHandler interface {
-	RouteRegistrar
-	ListProducts(w http.ResponseWriter, r *http.Request)
-	GetProduct(w http.ResponseWriter, r *http.Request)
+	ListProducts(c *fiber.Ctx) error
+	GetProduct(c *fiber.Ctx) error
 }
 
 type OrderHandler interface {
-	RouteRegistrar
-	CreateOrder(w http.ResponseWriter, r *http.Request)
-	GetOrder(w http.ResponseWriter, r *http.Request)
-	CancelOrder(w http.ResponseWriter, r *http.Request)
+	CreateOrder(c *fiber.Ctx) error
+	GetOrder(c *fiber.Ctx) error
+	CancelOrder(c *fiber.Ctx) error
 }
 
 type AuthHandler interface {
-	RouteRegistrar
-	RequestOTP(w http.ResponseWriter, r *http.Request)
-	VerifyOTP(w http.ResponseWriter, r *http.Request)
-	GetOTPStatus(w http.ResponseWriter, r *http.Request)
+	RequestOTP(c *fiber.Ctx) error
+	VerifyOTP(c *fiber.Ctx) error
+	GetOTPStatus(c *fiber.Ctx) error
 }
 
 type AuthMiddleware interface {
-	Authenticate(next http.Handler) http.Handler
+	Authenticate() fiber.Handler
 }
