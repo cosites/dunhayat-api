@@ -73,7 +73,7 @@ func RequestLogger(log logger.Interface) func(http.Handler) http.Handler {
 				ResponseWriter: w,
 				statusCode:     http.StatusOK,
 				body:           bodyBuffer,
-				teeWriter:      io.MultiWriter(w, bodyBuffer),
+				teeWriter:      bodyBuffer,
 			}
 
 			next.ServeHTTP(responseWriter, r)
