@@ -23,6 +23,7 @@ type SessionRepository interface {
 	Create(ctx context.Context, session *auth.Session) error
 	GetByToken(ctx context.Context, token string) (*auth.Session, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	DeleteByToken(ctx context.Context, token string) error
 	CleanExpired(ctx context.Context) error
 }
 
@@ -120,6 +121,16 @@ func (r *postgresSessionRepository) Delete(
 	id uuid.UUID,
 ) error {
 	return r.db.WithContext(ctx).Delete(&auth.Session{}, id).Error
+}
+
+func (r *postgresSessionRepository) DeleteByToken(
+	ctx context.Context,
+	token string,
+) error {
+	return r.db.WithContext(ctx).Where(
+		"token = ?",
+		token,
+	).Delete(&auth.Session{}).Error
 }
 
 func (r *postgresSessionRepository) CleanExpired(
