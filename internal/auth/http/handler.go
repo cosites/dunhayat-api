@@ -3,6 +3,7 @@ package http
 import (
 	"dunhayat-api/internal/auth"
 	"dunhayat-api/internal/auth/usecase"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,15 +11,18 @@ import (
 type AuthHandler struct {
 	requestOTPUseCase usecase.RequestOTPUseCase
 	verifyOTPUseCase  usecase.VerifyOTPUseCase
+	logoutUseCase     usecase.LogoutUseCase
 }
 
 func NewAuthHandler(
 	requestOTPUseCase usecase.RequestOTPUseCase,
 	verifyOTPUseCase usecase.VerifyOTPUseCase,
+	logoutUseCase usecase.LogoutUseCase,
 ) *AuthHandler {
 	return &AuthHandler{
 		requestOTPUseCase: requestOTPUseCase,
 		verifyOTPUseCase:  verifyOTPUseCase,
+		logoutUseCase:     logoutUseCase,
 	}
 }
 
@@ -140,5 +144,45 @@ func (h *AuthHandler) GetOTPStatus(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"phone":  phone,
 		"status": "pending",
+	})
+}
+
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	if c.Method() != fiber.MethodPost {
+		return c.Status(
+			fiber.StatusMethodNotAllowed,
+		).JSON(fiber.Map{
+			"error": "Method not allowed",
+		})
+	}
+
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Authorization header required",
+		})
+	}
+
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid authorization format. Use 'Bearer <token>'",
+		})
+	}
+
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	if token == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Token is required",
+		})
+	}
+
+	if err := h.logoutUseCase.Execute(c.Context(), token); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to logout",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Logged out successfully",
 	})
 }
