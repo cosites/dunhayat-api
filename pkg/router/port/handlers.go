@@ -19,6 +19,7 @@ type AuthHandler interface {
 	RequestOTP(c *fiber.Ctx) error
 	VerifyOTP(c *fiber.Ctx) error
 	GetOTPStatus(c *fiber.Ctx) error
+	Logout(c *fiber.Ctx) error
 }
 
 type AuthMiddleware interface {

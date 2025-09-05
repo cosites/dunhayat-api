@@ -176,7 +176,14 @@ func (r *FiberRouter) setupRoutes() {
 		"/verify-otp",
 		r.authHandler.VerifyOTP,
 	)
-	auth.Get("/otp-status", r.authHandler.GetOTPStatus)
+	auth.Get(
+		"/otp-status",
+		r.authHandler.GetOTPStatus,
+	)
+	auth.Post(
+		"/logout",
+		r.authHandler.Logout,
+	)
 
 	products := api.Group("/products")
 	products.Get(
