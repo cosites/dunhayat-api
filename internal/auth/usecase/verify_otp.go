@@ -57,14 +57,14 @@ func (uc *verifyOTPUseCase) Execute(
 	if time.Now().After(otp.ExpiresAt) {
 		uc.logger.Warn("OTP has expired", zap.String("phone", phone))
 		otp.Status = auth.OTPStatusExpired
-		uc.otpRepo.Update(ctx, otp)
+		_ = uc.otpRepo.Update(ctx, otp)
 		return nil, fmt.Errorf("OTP has expired")
 	}
 
 	if otp.Code != code {
 		uc.logger.Warn("Invalid OTP code", zap.String("phone", phone))
 		otp.Status = auth.OTPStatusFailed
-		uc.otpRepo.Update(ctx, otp)
+		_ = uc.otpRepo.Update(ctx, otp)
 		return nil, fmt.Errorf("invalid OTP code")
 	}
 

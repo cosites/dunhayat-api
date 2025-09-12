@@ -181,7 +181,7 @@ func GetSessionFromContext(c *fiber.Ctx) (*auth.Session, bool) {
 func RequireAuth(c *fiber.Ctx) (*port.User, bool) {
 	user, ok := GetUserFromContext(c)
 	if !ok {
-		c.Status(
+		_ = c.Status(
 			fiber.StatusUnauthorized,
 		).JSON(fiber.Map{"error": "Authentication required"})
 		return nil, false
@@ -196,7 +196,7 @@ func RequirePhoneVerification(c *fiber.Ctx) (*port.User, bool) {
 	}
 
 	if user.Verified < 1 {
-		c.Status(
+		_ = c.Status(
 			fiber.StatusForbidden,
 		).JSON(fiber.Map{"error": "Phone verification required"})
 		return nil, false

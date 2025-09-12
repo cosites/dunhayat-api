@@ -91,7 +91,7 @@ func (uc *requestOTPUseCase) Execute(
 	); err != nil {
 		uc.logger.Error("Failed to send OTP SMS", zap.Error(err))
 		otp.Status = auth.OTPStatusFailed
-		uc.otpRepo.Update(ctx, otp)
+		_ = uc.otpRepo.Update(ctx, otp)
 		return nil, fmt.Errorf("failed to send OTP SMS: %w", err)
 	}
 
