@@ -6,9 +6,6 @@
 *.dylib
 target/
 
-# Generated API docs
-api/docs/
-
 # Air
 .air/
 
