@@ -96,7 +96,10 @@ func (r *postgresProductRepository) UpdateStock(
 	quantity int,
 ) error {
 	return r.db.WithContext(ctx).Model(&products.Product{}).
-		Where("id = ?", id).
-		Update("in_stock", gorm.Expr("in_stock + ?", quantity),
-	).Error
+		Where("id = ?", id).Update(
+			"in_stock",
+			gorm.Expr(
+				"in_stock + ?", quantity,
+			),
+		).Error
 }
