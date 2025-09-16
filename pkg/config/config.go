@@ -15,6 +15,7 @@ type Config struct {
 	Auth     AuthConfig     `mapstructure:"auth"`
 	Log      LogConfig      `mapstructure:"log"`
 	CORS     CORSConfig     `mapstructure:"cors"`
+	Payment  PaymentConfig  `mapstructure:"payment"`
 }
 
 type DatabaseConfig struct {
@@ -52,6 +53,16 @@ type CORSConfig struct {
 	AllowedMethods   []string `mapstructure:"allowed_methods"`
 	AllowedHeaders   []string `mapstructure:"allowed_headers"`
 	AllowCredentials bool     `mapstructure:"allow_credentials"`
+}
+
+type PaymentConfig struct {
+	Zibal ZibalConfig `mapstructure:"zibal"`
+}
+
+type ZibalConfig struct {
+	MerchantID string `mapstructure:"merchant_id"`
+	BaseURL    string `mapstructure:"base_url"`
+	Timeout    int    `mapstructure:"timeout"`
 }
 
 func Load() (*Config, error) {
@@ -117,6 +128,10 @@ func setDefaults() {
 		[]string{"Content-Type", "Authorization"},
 	)
 	viper.SetDefault("cors.allow_credentials", false)
+
+	viper.SetDefault("payment.zibal.merchant_id", "")
+	viper.SetDefault("payment.zibal.base_url", "https://gateway.zibal.ir/v1")
+	viper.SetDefault("payment.zibal.timeout", 30)
 }
 
 func (c *DatabaseConfig) GetDSN() string {
