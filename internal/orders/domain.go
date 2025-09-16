@@ -50,10 +50,12 @@ type CartReservation struct {
 }
 
 type CreateOrderRequest struct {
-	UserID     uuid.UUID          `json:"user_id" binding:"required"`
-	Items      []OrderItemRequest `json:"items" binding:"required,min=1"`
-	Address    string             `json:"address" binding:"required"`
-	PostalCode string             `json:"postal_code" binding:"required"`
+	UserID      uuid.UUID          `json:"user_id" binding:"required"`
+	Items       []OrderItemRequest `json:"items" binding:"required,min=1"`
+	Address     string             `json:"address" binding:"required"`
+	PostalCode  string             `json:"postal_code" binding:"required"`
+	CallbackURL string             `json:"callback_url" binding:"required"`
+	ReturnURL   string             `json:"return_url" binding:"required"`
 }
 
 type OrderItemRequest struct {
@@ -62,16 +64,26 @@ type OrderItemRequest struct {
 }
 
 type OrderResponse struct {
-	ID           uuid.UUID   `json:"id"`
-	UserID       uuid.UUID   `json:"user_id"`
-	Status       OrderStatus `json:"status"`
-	TrackingCode *string     `json:"tracking_code,omitempty"`
-	TotalPrice   int         `json:"total_price"`
-	Items        []SaleItem  `json:"items"`
-	Address      string      `json:"address"`
-	PostalCode   string      `json:"postal_code"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
+	ID           uuid.UUID    `json:"id"`
+	UserID       uuid.UUID    `json:"user_id"`
+	Status       OrderStatus  `json:"status"`
+	TrackingCode *string      `json:"tracking_code,omitempty"`
+	TotalPrice   int          `json:"total_price"`
+	Items        []SaleItem   `json:"items"`
+	Address      string       `json:"address"`
+	PostalCode   string       `json:"postal_code"`
+	Payment      *PaymentInfo `json:"payment,omitempty"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+}
+
+type PaymentInfo struct {
+	PaymentID    uuid.UUID `json:"payment_id"`
+	GatewayURL   string    `json:"gateway_url"`
+	GatewayRefID string    `json:"gateway_ref_id"`
+	Status       string    `json:"status"`
+	Amount       int       `json:"amount"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 func (Sale) TableName() string {
