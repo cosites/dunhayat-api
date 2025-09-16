@@ -16,6 +16,12 @@ type SaleRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*orders.Sale, error)
 	GetByUserID(ctx context.Context, userID uuid.UUID) ([]orders.Sale, error)
 	Update(ctx context.Context, sale *orders.Sale) error
+	// UpdateStatus updates only the status field of a sale
+	UpdateStatus(ctx context.Context, id uuid.UUID, status orders.OrderStatus) error
+	// SetTrackingCode sets the gateway tracking code (e.g., Zibal trackId) on the sale
+	SetTrackingCode(ctx context.Context, id uuid.UUID, trackingCode string) error
+	// GetByTrackingCode finds a sale by its tracking code
+	GetByTrackingCode(ctx context.Context, trackingCode string) (*orders.Sale, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -98,6 +104,46 @@ func (r *postgresSaleRepository) Update(
 	sale *orders.Sale,
 ) error {
 	return r.db.WithContext(ctx).Save(sale).Error
+}
+
+func (r *postgresSaleRepository) UpdateStatus(
+	ctx context.Context,
+	id uuid.UUID,
+	status orders.OrderStatus,
+) error {
+	return r.db.WithContext(ctx).
+		Model(&orders.Sale{}).
+		Where("id = ?", id).
+		Update("status", status).Error
+}
+
+func (r *postgresSaleRepository) SetTrackingCode(
+	ctx context.Context,
+	id uuid.UUID,
+	trackingCode string,
+) error {
+	return r.db.WithContext(ctx).
+		Model(&orders.Sale{}).
+		Where("id = ?", id).
+		Update("tracking_code", trackingCode).Error
+}
+
+func (r *postgresSaleRepository) GetByTrackingCode(
+	ctx context.Context,
+	trackingCode string,
+) (*orders.Sale, error) {
+	var sale orders.Sale
+	err := r.db.WithContext(ctx).Where(
+		"tracking_code = ?",
+		trackingCode,
+	).First(&sale).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &sale, nil
 }
 
 func (r *postgresSaleRepository) Delete(
