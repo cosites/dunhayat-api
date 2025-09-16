@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"dunhayat-api/internal/orders"
@@ -20,6 +21,7 @@ type createOrderUseCase struct {
 	cartReservationRepo repository.CartReservationRepository
 	productService      port.ProductService
 	userService         port.UserService
+	paymentService      port.PaymentService
 }
 
 func NewCreateOrderUseCase(
@@ -28,6 +30,7 @@ func NewCreateOrderUseCase(
 	cartReservationRepo repository.CartReservationRepository,
 	productService port.ProductService,
 	userService port.UserService,
+	paymentService port.PaymentService,
 ) CreateOrderUseCase {
 	return &createOrderUseCase{
 		saleRepo:            saleRepo,
@@ -35,6 +38,7 @@ func NewCreateOrderUseCase(
 		cartReservationRepo: cartReservationRepo,
 		productService:      productService,
 		userService:         userService,
+		paymentService:      paymentService,
 	}
 }
 
@@ -118,6 +122,33 @@ func (uc *createOrderUseCase) Execute(
 		saleItems = append(saleItems, *saleItem)
 	}
 
+	paymentReq := &port.InitiatePaymentRequest{
+		OrderID:     sale.ID,
+		UserID:      sale.UserID,
+		Amount:      totalPrice,
+		CallbackURL: req.CallbackURL,
+		ReturnURL:   req.ReturnURL,
+		Description: fmt.Sprintf(
+			"Payment for order %s", sale.ID.String(),
+		),
+		Metadata: map[string]any{
+			"order_id":    sale.ID.String(),
+			"address":     req.Address,
+			"postal_code": req.PostalCode,
+		},
+	}
+
+	paymentResp, err := uc.paymentService.InitiatePayment(ctx, paymentReq)
+	if err != nil {
+		if err := uc.saleRepo.Update(ctx, &orders.Sale{
+			ID:     sale.ID,
+			Status: orders.OrderStatusCancelled,
+		}); err != nil {
+			return nil, fmt.Errorf("failed to update sale status: %w", err)
+		}
+		return nil, fmt.Errorf("failed to initiate payment: %w", err)
+	}
+
 	return &orders.OrderResponse{
 		ID:           sale.ID,
 		UserID:       sale.UserID,
@@ -127,7 +158,15 @@ func (uc *createOrderUseCase) Execute(
 		Items:        saleItems,
 		Address:      req.Address,
 		PostalCode:   req.PostalCode,
-		CreatedAt:    sale.CreatedAt,
-		UpdatedAt:    sale.UpdatedAt,
+		Payment: &orders.PaymentInfo{
+			PaymentID:    paymentResp.PaymentID,
+			GatewayURL:   paymentResp.GatewayURL,
+			GatewayRefID: paymentResp.GatewayRefID,
+			Status:       paymentResp.Status,
+			Amount:       paymentResp.Amount,
+			ExpiresAt:    paymentResp.ExpiresAt,
+		},
+		CreatedAt: sale.CreatedAt,
+		UpdatedAt: sale.UpdatedAt,
 	}, nil
 }
