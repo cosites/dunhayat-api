@@ -12,9 +12,13 @@ import (
 	authLogger "dunhayat-api/internal/auth/logger"
 	authRepo "dunhayat-api/internal/auth/repository"
 	authUseCase "dunhayat-api/internal/auth/usecase"
+	orderAdapter "dunhayat-api/internal/orders/adapter"
 	orderHandler "dunhayat-api/internal/orders/http"
 	orderRepo "dunhayat-api/internal/orders/repository"
 	orderUseCase "dunhayat-api/internal/orders/usecase"
+	paymentAdapter "dunhayat-api/internal/payments/adapter"
+	paymentHandler "dunhayat-api/internal/payments/http"
+	paymentUseCase "dunhayat-api/internal/payments/usecase"
 	productAdapter "dunhayat-api/internal/products/adapter"
 	productHandler "dunhayat-api/internal/products/http"
 	productRepo "dunhayat-api/internal/products/repository"
@@ -24,6 +28,7 @@ import (
 	"dunhayat-api/pkg/config"
 	"dunhayat-api/pkg/database"
 	"dunhayat-api/pkg/logger"
+	"dunhayat-api/pkg/payment"
 	"dunhayat-api/pkg/redis"
 	"dunhayat-api/pkg/router"
 	"dunhayat-api/pkg/sms"
@@ -152,12 +157,42 @@ func main() {
 	getProductUseCase := productUseCase.NewGetProductUseCase(
 		productRepository,
 	)
+
+	zibalClient := payment.NewZibalClient(payment.ZibalConfig{
+		MerchantID: cfg.Payment.Zibal.MerchantID,
+		BaseURL:    cfg.Payment.Zibal.BaseURL,
+		Timeout:    time.Duration(cfg.Payment.Zibal.Timeout) * time.Second,
+	})
+
+	paymentsOrderService := orderAdapter.NewPaymentsOrderService(
+		saleRepository,
+	)
+
+	initiatePaymentUseCase := paymentUseCase.NewInitiatePaymentUseCase(
+		paymentsOrderService,
+		zibalClient,
+	)
+	verifyPaymentUseCase := paymentUseCase.NewVerifyPaymentUseCase(
+		paymentsOrderService,
+		zibalClient,
+	)
+	handleCallbackUseCase := paymentUseCase.NewHandleCallbackUseCase(
+		paymentsOrderService,
+	)
+	getPaymentStatusUseCase := paymentUseCase.NewGetPaymentStatusUseCase(
+		paymentsOrderService,
+	)
+
 	createOrderUseCase := orderUseCase.NewCreateOrderUseCase(
 		saleRepository,
 		saleItemRepository,
 		cartReservationRepository,
 		ordersProductService,
 		ordersUserService,
+		paymentAdapter.NewOrdersPaymentService(
+			initiatePaymentUseCase,
+			verifyPaymentUseCase,
+		),
 	)
 
 	authUserService := usersAdapter.NewAuthUserService(
@@ -189,6 +224,12 @@ func main() {
 	orderHTTPHandler := orderHandler.NewOrderHandler(
 		createOrderUseCase,
 	)
+	paymentHTTPHandler := paymentHandler.NewPaymentHandler(
+		initiatePaymentUseCase,
+		verifyPaymentUseCase,
+		handleCallbackUseCase,
+		getPaymentStatusUseCase,
+	)
 	authHTTPHandler := authHandler.NewAuthHandler(
 		requestOTPUseCase,
 		verifyOTPUseCase,
@@ -204,12 +245,9 @@ func main() {
 		middlewareUserService,
 	)
 
-
 	version := Version
 
-
 	log.Info("Application version", zap.String("version", version))
-
 
 	routerConfig := &router.FiberConfig{
 		AppEnv: cfg.Env,
@@ -220,6 +258,7 @@ func main() {
 		routerConfig,
 		productHTTPHandler,
 		orderHTTPHandler,
+		paymentHTTPHandler,
 		authHTTPHandler,
 		authMiddleware,
 		version,
@@ -236,7 +275,6 @@ func main() {
 		zap.String("logLevel", cfg.Log.Level),
 	)
 
-
 	go func() {
 		log.Info(
 			"Starting Fiber server",
@@ -251,7 +289,6 @@ func main() {
 			)
 		}
 	}()
-
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
