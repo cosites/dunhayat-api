@@ -9,19 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type OrdersUserService struct {
+type OrdersUserAdapter struct {
 	userRepo repository.UserRepository
 }
 
-func NewOrdersUserService(
+func NewOrdersUserAdapter(
 	userRepo repository.UserRepository,
-) port.UserService {
-	return &OrdersUserService{
+) port.UserPort {
+	return &OrdersUserAdapter{
 		userRepo: userRepo,
 	}
 }
 
-func (s *OrdersUserService) GetUserByID(
+func (s *OrdersUserAdapter) GetUserByID(
 	ctx context.Context,
 	userID uuid.UUID,
 ) (*port.User, error) {

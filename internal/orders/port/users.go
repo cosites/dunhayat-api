@@ -14,6 +14,6 @@ type User struct {
 	Email     *string   `json:"email,omitempty"`
 }
 
-type UserService interface {
+type UserPort interface {
 	GetUserByID(ctx context.Context, userID uuid.UUID) (*User, error)
 }

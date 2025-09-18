@@ -9,19 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type MiddlewareUserService struct {
+type MiddlewareUserAdapter struct {
 	userRepo repository.UserRepository
 }
 
-func NewMiddlewareUserService(
+func NewMiddlewareUserAdapter(
 	userRepo repository.UserRepository,
 ) port.UserReader {
-	return &MiddlewareUserService{
+	return &MiddlewareUserAdapter{
 		userRepo: userRepo,
 	}
 }
 
-func (s *MiddlewareUserService) GetUserByID(
+func (s *MiddlewareUserAdapter) GetUserByID(
 	ctx context.Context,
 	userID uuid.UUID,
 ) (*port.User, error) {

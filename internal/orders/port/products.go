@@ -9,7 +9,7 @@ type Product struct {
 	InStock int    `json:"in_stock"`
 }
 
-type ProductService interface {
+type ProductPort interface {
 	GetProductByID(ctx context.Context, productID string) (*Product, error)
 	UpdateStock(ctx context.Context, productID string, quantity int) error
 }

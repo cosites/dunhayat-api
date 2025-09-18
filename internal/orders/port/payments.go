@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type PaymentService interface {
+type PaymentPort interface {
 	InitiatePayment(ctx context.Context, req *InitiatePaymentRequest) (*InitiatePaymentResponse, error)
 	VerifyPayment(ctx context.Context, paymentID uuid.UUID) (*VerifyPaymentResponse, error)
 }

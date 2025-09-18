@@ -7,19 +7,19 @@ import (
 	"dunhayat-api/internal/products/repository"
 )
 
-type OrdersProductService struct {
+type OrdersProductAdapter struct {
 	productRepo repository.ProductRepository
 }
 
-func NewOrdersProductService(
+func NewOrdersProductAdapter(
 	productRepo repository.ProductRepository,
-) port.ProductService {
-	return &OrdersProductService{
+) port.ProductPort {
+	return &OrdersProductAdapter{
 		productRepo: productRepo,
 	}
 }
 
-func (s *OrdersProductService) GetProductByID(
+func (s *OrdersProductAdapter) GetProductByID(
 	ctx context.Context,
 	productID string,
 ) (*port.Product, error) {
@@ -39,7 +39,7 @@ func (s *OrdersProductService) GetProductByID(
 	}, nil
 }
 
-func (s *OrdersProductService) UpdateStock(
+func (s *OrdersProductAdapter) UpdateStock(
 	ctx context.Context,
 	productID string,
 	quantity int,

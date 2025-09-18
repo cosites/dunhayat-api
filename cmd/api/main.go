@@ -144,10 +144,10 @@ func main() {
 		redisClient, log,
 	)
 
-	ordersProductService := productAdapter.NewOrdersProductService(
+	ordersProductAdapter := productAdapter.NewOrdersProductAdapter(
 		productRepository,
 	)
-	ordersUserService := usersAdapter.NewOrdersUserService(
+	ordersUserAdapter := usersAdapter.NewOrdersUserAdapter(
 		userRepository,
 	)
 
@@ -164,38 +164,38 @@ func main() {
 		Timeout:    time.Duration(cfg.Payment.Zibal.Timeout) * time.Second,
 	})
 
-	paymentsOrderService := orderAdapter.NewPaymentsOrderService(
+	paymentsOrderAdapter := orderAdapter.NewPaymentsOrderAdapter(
 		saleRepository,
 	)
 
 	initiatePaymentUseCase := paymentUseCase.NewInitiatePaymentUseCase(
-		paymentsOrderService,
+		paymentsOrderAdapter,
 		zibalClient,
 	)
 	verifyPaymentUseCase := paymentUseCase.NewVerifyPaymentUseCase(
-		paymentsOrderService,
+		paymentsOrderAdapter,
 		zibalClient,
 	)
 	handleCallbackUseCase := paymentUseCase.NewHandleCallbackUseCase(
-		paymentsOrderService,
+		paymentsOrderAdapter,
 	)
 	getPaymentStatusUseCase := paymentUseCase.NewGetPaymentStatusUseCase(
-		paymentsOrderService,
+		paymentsOrderAdapter,
 	)
 
 	createOrderUseCase := orderUseCase.NewCreateOrderUseCase(
 		saleRepository,
 		saleItemRepository,
 		cartReservationRepository,
-		ordersProductService,
-		ordersUserService,
-		paymentAdapter.NewOrdersPaymentService(
+		ordersProductAdapter,
+		ordersUserAdapter,
+		paymentAdapter.NewOrdersPaymentAdapter(
 			initiatePaymentUseCase,
 			verifyPaymentUseCase,
 		),
 	)
 
-	authUserService := usersAdapter.NewAuthUserService(
+	authUserAdapter := usersAdapter.NewAuthUserAdapter(
 		userRepository, addressRepository,
 	)
 
@@ -208,7 +208,7 @@ func main() {
 	verifyOTPUseCase := authUseCase.NewVerifyOTPUseCase(
 		otpRepository,
 		sessionRepository,
-		authUserService,
+		authUserAdapter,
 		24*time.Hour, // XXX: could be configurable
 		authLoggerAdapter,
 	)
@@ -236,13 +236,13 @@ func main() {
 		logoutUseCase,
 	)
 
-	middlewareUserService := usersAdapter.NewMiddlewareUserService(
+	middlewareUserAdapter := usersAdapter.NewMiddlewareUserAdapter(
 		userRepository,
 	)
 	authMiddleware := authHandler.NewAuthMiddleware(
 		log,
 		sessionRepository,
-		middlewareUserService,
+		middlewareUserAdapter,
 	)
 
 	version := Version

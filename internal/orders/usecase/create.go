@@ -19,26 +19,26 @@ type createOrderUseCase struct {
 	saleRepo            repository.SaleRepository
 	saleItemRepo        repository.SaleItemRepository
 	cartReservationRepo repository.CartReservationRepository
-	productService      port.ProductService
-	userService         port.UserService
-	paymentService      port.PaymentService
+	productPort         port.ProductPort
+	userPort            port.UserPort
+	paymentPort         port.PaymentPort
 }
 
 func NewCreateOrderUseCase(
 	saleRepo repository.SaleRepository,
 	saleItemRepo repository.SaleItemRepository,
 	cartReservationRepo repository.CartReservationRepository,
-	productService port.ProductService,
-	userService port.UserService,
-	paymentService port.PaymentService,
+	productPort port.ProductPort,
+	userPort port.UserPort,
+	paymentPort port.PaymentPort,
 ) CreateOrderUseCase {
 	return &createOrderUseCase{
 		saleRepo:            saleRepo,
 		saleItemRepo:        saleItemRepo,
 		cartReservationRepo: cartReservationRepo,
-		productService:      productService,
-		userService:         userService,
-		paymentService:      paymentService,
+		productPort:         productPort,
+		userPort:            userPort,
+		paymentPort:         paymentPort,
 	}
 }
 
@@ -46,7 +46,7 @@ func (uc *createOrderUseCase) Execute(
 	ctx context.Context,
 	req *orders.CreateOrderRequest,
 ) (*orders.OrderResponse, error) {
-	user, err := uc.userService.GetUserByID(ctx, req.UserID)
+	user, err := uc.userPort.GetUserByID(ctx, req.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (uc *createOrderUseCase) Execute(
 	var saleItems []orders.SaleItem
 
 	for _, item := range req.Items {
-		product, err := uc.productService.GetProductByID(
+		product, err := uc.productPort.GetProductByID(
 			ctx, item.ProductID,
 		)
 		if err != nil {
@@ -90,7 +90,7 @@ func (uc *createOrderUseCase) Execute(
 			return nil, err
 		}
 
-		if err := uc.productService.UpdateStock(
+		if err := uc.productPort.UpdateStock(
 			ctx, item.ProductID, -item.Quantity,
 		); err != nil {
 			return nil, err
@@ -107,7 +107,7 @@ func (uc *createOrderUseCase) Execute(
 	}
 
 	for _, item := range req.Items {
-		product, _ := uc.productService.GetProductByID(
+		product, _ := uc.productPort.GetProductByID(
 			ctx, item.ProductID,
 		)
 		saleItem := &orders.SaleItem{
@@ -138,7 +138,7 @@ func (uc *createOrderUseCase) Execute(
 		},
 	}
 
-	paymentResp, err := uc.paymentService.InitiatePayment(ctx, paymentReq)
+	paymentResp, err := uc.paymentPort.InitiatePayment(ctx, paymentReq)
 	if err != nil {
 		if err := uc.saleRepo.Update(ctx, &orders.Sale{
 			ID:     sale.ID,

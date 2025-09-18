@@ -19,14 +19,14 @@ type HandleCallbackUseCase interface {
 }
 
 type handleCallbackUseCase struct {
-	orderService port.OrderService
+	orderPort port.OrderPort
 }
 
 func NewHandleCallbackUseCase(
-	orderService port.OrderService,
+	orderPort port.OrderPort,
 ) HandleCallbackUseCase {
 	return &handleCallbackUseCase{
-		orderService: orderService,
+		orderPort: orderPort,
 	}
 }
 
@@ -34,7 +34,7 @@ func (uc *handleCallbackUseCase) Execute(
 	ctx context.Context,
 	callbackData payments.PaymentCallbackRequest,
 ) error {
-	sale, err := uc.orderService.GetSaleByTrackingCode(
+	sale, err := uc.orderPort.GetSaleByTrackingCode(
 		ctx, callbackData.TrackID,
 	)
 	if err != nil {
@@ -58,7 +58,7 @@ func (uc *handleCallbackUseCase) Execute(
 		newStatus = port.OrderStatusFailed
 	}
 
-	if err := uc.orderService.UpdateSaleStatus(
+	if err := uc.orderPort.UpdateSaleStatus(
 		ctx, sale.ID, newStatus,
 	); err != nil {
 		return fmt.Errorf(

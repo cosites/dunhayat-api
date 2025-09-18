@@ -19,17 +19,17 @@ type VerifyPaymentUseCase interface {
 }
 
 type verifyPaymentUseCase struct {
-	orderService port.OrderService
-	zibalClient  *payment.ZibalClient
+	orderPort   port.OrderPort
+	zibalClient *payment.ZibalClient
 }
 
 func NewVerifyPaymentUseCase(
-	orderService port.OrderService,
+	orderPort port.OrderPort,
 	zibalClient *payment.ZibalClient,
 ) VerifyPaymentUseCase {
 	return &verifyPaymentUseCase{
-		orderService: orderService,
-		zibalClient:  zibalClient,
+		orderPort:   orderPort,
+		zibalClient: zibalClient,
 	}
 }
 
@@ -37,7 +37,7 @@ func (uc *verifyPaymentUseCase) Execute(
 	ctx context.Context,
 	req *payments.VerifyPaymentRequest,
 ) (*payments.VerifyPaymentResponse, error) {
-	sale, err := uc.orderService.GetSaleByID(ctx, req.PaymentID)
+	sale, err := uc.orderPort.GetSaleByID(ctx, req.PaymentID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sale: %w", err)
 	}
@@ -66,7 +66,7 @@ func (uc *verifyPaymentUseCase) Execute(
 		newStatus = port.OrderStatusFailed
 	}
 
-	if err := uc.orderService.UpdateSaleStatus(
+	if err := uc.orderPort.UpdateSaleStatus(
 		ctx, sale.ID, newStatus,
 	); err != nil {
 		return nil, fmt.Errorf(

@@ -23,7 +23,7 @@ type Address struct {
 	PostalCode string    `json:"postal_code"`
 }
 
-type UserService interface {
+type UserPort interface {
 	FindUserByPhone(ctx context.Context, phone string) (*User, error)
 	CreateUser(ctx context.Context, user *User) error
 	UpdateUserLastLogin(ctx context.Context, userID uuid.UUID) error

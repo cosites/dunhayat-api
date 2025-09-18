@@ -10,19 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type PaymentsOrderService struct {
+type PaymentsOrderAdapter struct {
 	saleRepo repository.SaleRepository
 }
 
-func NewPaymentsOrderService(
+func NewPaymentsOrderAdapter(
 	saleRepo repository.SaleRepository,
-) port.OrderService {
-	return &PaymentsOrderService{
+) port.OrderPort {
+	return &PaymentsOrderAdapter{
 		saleRepo: saleRepo,
 	}
 }
 
-func (s *PaymentsOrderService) GetSaleByID(
+func (s *PaymentsOrderAdapter) GetSaleByID(
 	ctx context.Context,
 	saleID uuid.UUID,
 ) (*port.Sale, error) {
@@ -45,7 +45,7 @@ func (s *PaymentsOrderService) GetSaleByID(
 	}, nil
 }
 
-func (s *PaymentsOrderService) GetSaleByTrackingCode(
+func (s *PaymentsOrderAdapter) GetSaleByTrackingCode(
 	ctx context.Context,
 	trackingCode string,
 ) (*port.Sale, error) {
@@ -68,7 +68,7 @@ func (s *PaymentsOrderService) GetSaleByTrackingCode(
 	}, nil
 }
 
-func (s *PaymentsOrderService) UpdateSaleStatus(
+func (s *PaymentsOrderAdapter) UpdateSaleStatus(
 	ctx context.Context,
 	saleID uuid.UUID,
 	status port.OrderStatus,
@@ -76,7 +76,7 @@ func (s *PaymentsOrderService) UpdateSaleStatus(
 	return s.saleRepo.UpdateStatus(ctx, saleID, orders.OrderStatus(status))
 }
 
-func (s *PaymentsOrderService) SetSaleTrackingCode(
+func (s *PaymentsOrderAdapter) SetSaleTrackingCode(
 	ctx context.Context,
 	saleID uuid.UUID,
 	trackingCode string,

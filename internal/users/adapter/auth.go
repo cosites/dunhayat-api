@@ -11,22 +11,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type AuthUserService struct {
+type AuthUserAdapter struct {
 	userRepo    repository.UserRepository
 	addressRepo repository.AddressRepository
 }
 
-func NewAuthUserService(
+func NewAuthUserAdapter(
 	userRepo repository.UserRepository,
 	addressRepo repository.AddressRepository,
-) port.UserService {
-	return &AuthUserService{
+) port.UserPort {
+	return &AuthUserAdapter{
 		userRepo:    userRepo,
 		addressRepo: addressRepo,
 	}
 }
 
-func (s *AuthUserService) FindUserByPhone(
+func (s *AuthUserAdapter) FindUserByPhone(
 	ctx context.Context,
 	phone string,
 ) (*port.User, error) {
@@ -49,7 +49,7 @@ func (s *AuthUserService) FindUserByPhone(
 	}, nil
 }
 
-func (s *AuthUserService) CreateUser(
+func (s *AuthUserAdapter) CreateUser(
 	ctx context.Context,
 	user *port.User,
 ) error {
@@ -66,7 +66,7 @@ func (s *AuthUserService) CreateUser(
 	return s.userRepo.Create(ctx, domainUser)
 }
 
-func (s *AuthUserService) UpdateUserLastLogin(
+func (s *AuthUserAdapter) UpdateUserLastLogin(
 	ctx context.Context,
 	userID uuid.UUID,
 ) error {
@@ -84,7 +84,7 @@ func (s *AuthUserService) UpdateUserLastLogin(
 	return s.userRepo.Update(ctx, user)
 }
 
-func (s *AuthUserService) CreateAddress(
+func (s *AuthUserAdapter) CreateAddress(
 	ctx context.Context,
 	address *port.Address,
 ) error {
@@ -98,7 +98,7 @@ func (s *AuthUserService) CreateAddress(
 	return s.addressRepo.Create(ctx, domainAddress)
 }
 
-func (s *AuthUserService) GetUserAddresses(
+func (s *AuthUserAdapter) GetUserAddresses(
 	ctx context.Context,
 	userID uuid.UUID,
 ) ([]port.Address, error) {

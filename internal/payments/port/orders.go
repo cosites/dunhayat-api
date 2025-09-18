@@ -30,7 +30,7 @@ type Sale struct {
 	UpdatedAt    time.Time   `json:"updated_at"`
 }
 
-type OrderService interface {
+type OrderPort interface {
 	GetSaleByID(ctx context.Context, saleID uuid.UUID) (*Sale, error)
 	GetSaleByTrackingCode(ctx context.Context, trackingCode string) (*Sale, error)
 	UpdateSaleStatus(ctx context.Context, saleID uuid.UUID, status OrderStatus) error

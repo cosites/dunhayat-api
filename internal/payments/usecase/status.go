@@ -19,14 +19,14 @@ type GetPaymentStatusUseCase interface {
 }
 
 type getPaymentStatusUseCase struct {
-	orderService port.OrderService
+	orderPort port.OrderPort
 }
 
 func NewGetPaymentStatusUseCase(
-	orderService port.OrderService,
+	orderPort port.OrderPort,
 ) GetPaymentStatusUseCase {
 	return &getPaymentStatusUseCase{
-		orderService: orderService,
+		orderPort: orderPort,
 	}
 }
 
@@ -38,7 +38,7 @@ func (uc *getPaymentStatusUseCase) Execute(
 	var err error
 
 	if req.TrackingCode != "" {
-		sale, err = uc.orderService.GetSaleByTrackingCode(
+		sale, err = uc.orderPort.GetSaleByTrackingCode(
 			ctx, req.TrackingCode,
 		)
 		if err != nil {
@@ -53,7 +53,7 @@ func (uc *getPaymentStatusUseCase) Execute(
 				"invalid order ID format: %w", parseErr,
 			)
 		}
-		sale, err = uc.orderService.GetSaleByID(ctx, orderID)
+		sale, err = uc.orderPort.GetSaleByID(ctx, orderID)
 		if err != nil {
 			return nil, fmt.Errorf(
 				"failed to get sale by ID: %w", err,

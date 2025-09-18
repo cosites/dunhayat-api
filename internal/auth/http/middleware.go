@@ -17,18 +17,18 @@ import (
 type AuthMiddleware struct {
 	logger      *logger.Logger
 	sessionRepo repository.SessionRepository
-	userService port.UserReader
+	userReader  port.UserReader
 }
 
 func NewAuthMiddleware(
 	logger *logger.Logger,
 	sessionRepo repository.SessionRepository,
-	userService port.UserReader,
+	userReader port.UserReader,
 ) *AuthMiddleware {
 	return &AuthMiddleware{
 		logger:      logger,
 		sessionRepo: sessionRepo,
-		userService: userService,
+		userReader:  userReader,
 	}
 }
 
@@ -116,7 +116,7 @@ func (m *AuthMiddleware) Authenticate() fiber.Handler {
 			).JSON(fiber.Map{"error": "Session expired"})
 		}
 
-		user, err := m.userService.GetUserByID(
+		user, err := m.userReader.GetUserByID(
 			c.Context(),
 			session.UserID,
 		)

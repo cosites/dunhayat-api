@@ -18,17 +18,17 @@ type InitiatePaymentUseCase interface {
 }
 
 type initiatePaymentUseCase struct {
-	orderService port.OrderService
-	zibalClient  *payment.ZibalClient
+	orderPort   port.OrderPort
+	zibalClient *payment.ZibalClient
 }
 
 func NewInitiatePaymentUseCase(
-	orderService port.OrderService,
+	orderPort port.OrderPort,
 	zibalClient *payment.ZibalClient,
 ) InitiatePaymentUseCase {
 	return &initiatePaymentUseCase{
-		orderService: orderService,
-		zibalClient:  zibalClient,
+		orderPort:   orderPort,
+		zibalClient: zibalClient,
 	}
 }
 
@@ -50,7 +50,7 @@ func (uc *initiatePaymentUseCase) Execute(
 		)
 	}
 
-	if err := uc.orderService.SetSaleTrackingCode(
+	if err := uc.orderPort.SetSaleTrackingCode(
 		ctx, req.OrderID, zibalResp.TrackID,
 	); err != nil {
 		return nil, fmt.Errorf(

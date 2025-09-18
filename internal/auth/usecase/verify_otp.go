@@ -22,7 +22,7 @@ type VerifyOTPUseCase interface {
 type verifyOTPUseCase struct {
 	otpRepo        authRepo.OTPRepository
 	sessionRepo    authRepo.SessionRepository
-	userService    port.UserService
+	userPort       port.UserPort
 	sessionTimeout time.Duration
 	logger         logger.Interface
 }
@@ -30,14 +30,14 @@ type verifyOTPUseCase struct {
 func NewVerifyOTPUseCase(
 	otpRepo authRepo.OTPRepository,
 	sessionRepo authRepo.SessionRepository,
-	userService port.UserService,
+	userPort port.UserPort,
 	sessionTimeout time.Duration,
 	logger logger.Interface,
 ) VerifyOTPUseCase {
 	return &verifyOTPUseCase{
 		otpRepo:        otpRepo,
 		sessionRepo:    sessionRepo,
-		userService:    userService,
+		userPort:       userPort,
 		sessionTimeout: sessionTimeout,
 		logger:         logger,
 	}
@@ -87,7 +87,7 @@ func (uc *verifyOTPUseCase) Execute(
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	if err := uc.userService.UpdateUserLastLogin(
+	if err := uc.userPort.UpdateUserLastLogin(
 		ctx,
 		user.ID,
 	); err != nil {
@@ -96,7 +96,7 @@ func (uc *verifyOTPUseCase) Execute(
 		)
 	}
 
-	addresses, err := uc.userService.GetUserAddresses(ctx, user.ID)
+	addresses, err := uc.userPort.GetUserAddresses(ctx, user.ID)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to get user addresses: %w", err,
@@ -143,7 +143,7 @@ func (uc *verifyOTPUseCase) getLatestValidOTP(
 func (uc *verifyOTPUseCase) getOrCreateUser(
 	ctx context.Context, phone string,
 ) (*port.User, error) {
-	user, err := uc.userService.FindUserByPhone(ctx, phone)
+	user, err := uc.userPort.FindUserByPhone(ctx, phone)
 	if err == nil && user != nil {
 		return user, nil
 	}
@@ -154,7 +154,7 @@ func (uc *verifyOTPUseCase) getOrCreateUser(
 		Verified: 0,
 	}
 
-	if err := uc.userService.CreateUser(ctx, user); err != nil {
+	if err := uc.userPort.CreateUser(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 

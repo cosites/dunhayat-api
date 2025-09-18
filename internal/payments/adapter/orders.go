@@ -10,22 +10,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type OrdersPaymentService struct {
+type OrdersPaymentAdapter struct {
 	initiatePaymentUseCase usecase.InitiatePaymentUseCase
 	verifyPaymentUseCase   usecase.VerifyPaymentUseCase
 }
 
-func NewOrdersPaymentService(
+func NewOrdersPaymentAdapter(
 	initiatePaymentUseCase usecase.InitiatePaymentUseCase,
 	verifyPaymentUseCase usecase.VerifyPaymentUseCase,
-) port.PaymentService {
-	return &OrdersPaymentService{
+) port.PaymentPort {
+	return &OrdersPaymentAdapter{
 		initiatePaymentUseCase: initiatePaymentUseCase,
 		verifyPaymentUseCase:   verifyPaymentUseCase,
 	}
 }
 
-func (s *OrdersPaymentService) InitiatePayment(
+func (s *OrdersPaymentAdapter) InitiatePayment(
 	ctx context.Context,
 	req *port.InitiatePaymentRequest,
 ) (*port.InitiatePaymentResponse, error) {
@@ -55,7 +55,7 @@ func (s *OrdersPaymentService) InitiatePayment(
 	}, nil
 }
 
-func (s *OrdersPaymentService) VerifyPayment(
+func (s *OrdersPaymentAdapter) VerifyPayment(
 	ctx context.Context,
 	paymentID uuid.UUID,
 ) (*port.VerifyPaymentResponse, error) {
