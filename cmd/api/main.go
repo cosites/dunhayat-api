@@ -9,7 +9,6 @@ import (
 	"time"
 
 	authHandler "dunhayat-api/internal/auth/http"
-	authLogger "dunhayat-api/internal/auth/logger"
 	authRepo "dunhayat-api/internal/auth/repository"
 	authUseCase "dunhayat-api/internal/auth/usecase"
 	orderAdapter "dunhayat-api/internal/orders/adapter"
@@ -137,9 +136,6 @@ func main() {
 	smsProvider := sms.NewKavenegarProvider(
 		cfg.Auth.KavenegarAPIKey,
 	)
-	authLoggerAdapter := authLogger.NewAdapter(
-		log,
-	)
 	otpRepository := authRepo.NewRedisOTPRepository(
 		redisClient, log,
 	)
@@ -203,18 +199,18 @@ func main() {
 		otpRepository,
 		smsProvider,
 		cfg.Auth.OTPTemplate,
-		authLoggerAdapter,
+		log,
 	)
 	verifyOTPUseCase := authUseCase.NewVerifyOTPUseCase(
 		otpRepository,
 		sessionRepository,
 		authUserAdapter,
 		24*time.Hour, // XXX: could be configurable
-		authLoggerAdapter,
+		log,
 	)
 	logoutUseCase := authUseCase.NewLogoutUseCase(
 		sessionRepository,
-		authLoggerAdapter,
+		log,
 	)
 
 	productHTTPHandler := productHandler.NewProductHandler(
