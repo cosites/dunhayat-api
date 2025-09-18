@@ -22,6 +22,7 @@ type FiberRouter struct {
 	cfg            *FiberConfig
 	productHandler port.ProductHandler
 	orderHandler   port.OrderHandler
+	paymentHandler port.PaymentHandler
 	authHandler    port.AuthHandler
 	authMiddleware port.AuthMiddleware
 	version        string
@@ -37,6 +38,7 @@ func NewFiberRouter(
 	cfg *FiberConfig,
 	productHandler port.ProductHandler,
 	orderHandler port.OrderHandler,
+	paymentHandler port.PaymentHandler,
 	authHandler port.AuthHandler,
 	authMiddleware port.AuthMiddleware,
 	version string,
@@ -80,6 +82,7 @@ func NewFiberRouter(
 		cfg:            cfg,
 		productHandler: productHandler,
 		orderHandler:   orderHandler,
+		paymentHandler: paymentHandler,
 		authHandler:    authHandler,
 		authMiddleware: authMiddleware,
 		version:        version,
@@ -205,6 +208,27 @@ func (r *FiberRouter) setupRoutes() {
 		"/:id",
 		r.authMiddleware.Authenticate(),
 		r.orderHandler.GetOrder,
+	)
+
+	payments := api.Group("/payments")
+	payments.Post(
+		"/initiate",
+		r.authMiddleware.Authenticate(),
+		r.paymentHandler.InitiatePayment,
+	)
+	payments.Post(
+		"/verify",
+		r.authMiddleware.Authenticate(),
+		r.paymentHandler.VerifyPayment,
+	)
+	payments.Post(
+		"/callback",
+		r.paymentHandler.HandleCallback,
+	)
+	payments.Get(
+		"/:id/status",
+		r.authMiddleware.Authenticate(),
+		r.paymentHandler.GetPaymentStatus,
 	)
 }
 

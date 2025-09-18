@@ -15,6 +15,13 @@ type OrderHandler interface {
 	CancelOrder(c *fiber.Ctx) error
 }
 
+type PaymentHandler interface {
+	InitiatePayment(c *fiber.Ctx) error
+	VerifyPayment(c *fiber.Ctx) error
+	HandleCallback(c *fiber.Ctx) error
+	GetPaymentStatus(c *fiber.Ctx) error
+}
+
 type AuthHandler interface {
 	RequestOTP(c *fiber.Ctx) error
 	VerifyOTP(c *fiber.Ctx) error
