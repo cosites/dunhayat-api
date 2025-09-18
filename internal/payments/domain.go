@@ -101,6 +101,21 @@ type PaymentCallbackRequest struct {
 	HashedCardNumber string `json:"hashedCardNumber"`
 }
 
+type GetPaymentStatusRequest struct {
+	OrderID      string `json:"order_id,omitempty"`
+	TrackingCode string `json:"tracking_code,omitempty"`
+}
+
+type GetPaymentStatusResponse struct {
+	PaymentID    uuid.UUID     `json:"payment_id"`
+	TrackingCode *string       `json:"tracking_code,omitempty"`
+	Status       PaymentStatus `json:"status"`
+	Amount       int           `json:"amount"`
+	OrderStatus  string        `json:"order_status"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
+}
+
 func (Payment) TableName() string {
 	return "payments"
 }
