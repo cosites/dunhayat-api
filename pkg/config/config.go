@@ -65,10 +65,8 @@ type ZibalConfig struct {
 	Timeout    int    `mapstructure:"timeout"`
 }
 
-func Load() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+func Load(configFile string) (*Config, error) {
+	viper.SetConfigFile(configFile)
 
 	setDefaults()
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -39,7 +40,14 @@ import (
 var Version = "dev"
 
 func main() {
-	cfg, err := config.Load()
+	configFile := flag.String(
+		"c",
+		"config.yaml",
+		"Path to configuration file",
+	)
+	flag.Parse()
+
+	cfg, err := config.Load(*configFile)
 	if err != nil {
 		fmt.Fprintf(
 			os.Stderr,
