@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# PROVIDE: dunhayat
+# REQUIRE: LOGIN postgresql redis
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="dunhayat"
+rcvar="${name}_enable"
+
+pidfile="/var/run/dunhayat.pid"
+logfile="/var/log/dunhayat.log"
+
+load_rc_config "$name"
+: ${dunhayat_enable="NO"}
+: ${dunhayat_command="/usr/local/bin/dunhayat"}
+: ${dunhayat_config="/usr/local/etc/dunhayat/config.yaml"}
+
+required_files="${dunhayat_config}"
+
+command="/usr/sbin/daemon"
+command_args="-f -o ${logfile} -P ${pidfile} ${dunhayat_command} ${dunhayat_config}"
+
+start_precmd="${name}_prestart"
+
+dunhayat_prestart()
+{
+    [ -f "${logfile}" ] || install -m 644 /dev/null "${logfile}"
+}
+
+run_rc_command "$1"
