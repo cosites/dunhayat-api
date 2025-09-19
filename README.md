@@ -302,4 +302,18 @@ _...and the sky's the limit..._
 
 ## 📝 License
 
-This project is proprietary software for Dunhayat Coffee Roastery.
+Dunhayat API is originally developed for Dunhayat Coffee Roastery and released
+under the **Business Source License 1.1 (BSL 1.1)**. 
+
+- Free for non-production, educational, personal, and internal use.
+- Commercial production use (that is operating an e-commerce site or other
+  revenue-generating service) requires a commercial licence from the author.
+
+After the **Change Date** (two years from the first public release of any
+version), the software will be relicensed under the **Apache License 2.0**.
+
+For full licence terms, including conditions for commercial use, please consult
+the [LICENSE](./LICENSE) file.
+
+For commercial licensing enquiries,
+[contact the author](mailto:kfv@kfv.io?subject=Commercial%20License%20Enquiry%20-%20Dunhayat%20API).
