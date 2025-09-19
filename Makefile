@@ -1,4 +1,4 @@
-.PHONY: build docs deps dev run fmt sec test migrate migrate-status migrate-new setup clean help
+.PHONY: build docs deps dev run fmt sec test migrate migrate-status migrate-new setup clean install help
 
 help:
 	@echo "Available commands:"
@@ -21,6 +21,7 @@ help:
 	@echo "  migrate-new     - Create new migration (usage: make migrate-new name=migration_name)"
 	@echo "  setup           - Setup development environment"
 	@echo "  clean           - Clean build artefacts"
+	@echo "  install         - Install application (requires root)"
 	@echo "  help            - Show this help message"
 
 # Auto-detect version from git or use provided override
@@ -105,3 +106,16 @@ docs:
 
 setup: deps docs
 	@echo "Development environment setup complete"
+
+install: build
+	@echo "Installing dunhayat..."
+	@if [ "$$(uname)" != "FreeBSD" ]; then \
+		echo "Error: Install target only supports FreeBSD at the moment"; \
+		exit 1; \
+	fi
+	@if [ "$$(id -u)" -eq 0 ]; then \
+		./scripts/platform/FreeBSD/install.sh; \
+	else \
+		echo "Installation requires root privileges."; \
+		exit 1; \
+	fi
