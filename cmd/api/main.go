@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -39,22 +39,47 @@ import (
 
 var Version = "dev"
 
-func main() {
-	configFile := flag.String(
-		"c",
-		"config.yaml",
-		"Path to configuration file",
-	)
-	flag.Parse()
+const usageMessage = `
+Usage: %s [config-file]
 
-	cfg, err := config.Load(*configFile)
+  config-file        optional path to configuration file (default: config.yaml)
+
+`
+
+func usage() {
+	fmt.Fprintf(
+		os.Stderr,
+		usageMessage,
+		filepath.Base(os.Args[0]),
+	)
+
+	os.Exit(1)
+}
+
+func main() {
+	var configFile string
+
+	switch len(os.Args) - 1 {
+	case 0:
+		configFile = "config.yaml"
+	case 1:
+		configFile = os.Args[1]
+	default:
+		fmt.Fprintf(
+			os.Stderr,
+			"Error: too many arguments\n",
+		)
+		usage()
+	}
+
+	cfg, err := config.Load(configFile)
 	if err != nil {
 		fmt.Fprintf(
 			os.Stderr,
-			"Failed to load configuration: %v\n",
+			"failed to load configuration: %v\n",
 			err,
 		)
-		os.Exit(1)
+		usage()
 	}
 
 	var env logger.Env

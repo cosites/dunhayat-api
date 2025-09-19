@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -66,6 +67,10 @@ type ZibalConfig struct {
 }
 
 func Load(configFile string) (*Config, error) {
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		return nil, err
+	}
+
 	viper.SetConfigFile(configFile)
 
 	setDefaults()
@@ -75,9 +80,7 @@ func Load(configFile string) (*Config, error) {
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, fmt.Errorf(
-				"failed to read config file: %w", err,
-			)
+			return nil, err
 		}
 	}
 
