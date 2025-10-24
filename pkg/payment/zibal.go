@@ -13,6 +13,7 @@ type ZibalConfig struct {
 	MerchantID string
 	BaseURL    string
 	Timeout    time.Duration
+	APIToken   string
 }
 
 type ZibalClient struct {
@@ -99,6 +100,9 @@ func (c *ZibalClient) CreatePaymentRequest(
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
+	if c.config.APIToken != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+c.config.APIToken)
+	}
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -165,6 +169,9 @@ func (c *ZibalClient) VerifyPayment(
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
+	if c.config.APIToken != "" {
+		httpReq.Header.Set("Authorization", "Bearer "+c.config.APIToken)
+	}
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
