@@ -202,6 +202,7 @@ func main() {
 		paymentsOrderAdapter,
 		zibalClient,
 		log,
+		cfg,
 	)
 	verifyPaymentUseCase := paymentUseCase.NewVerifyPaymentUseCase(
 		paymentsOrderAdapter,

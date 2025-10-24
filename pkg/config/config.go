@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	Env      string         `mapstructure:"env"`
+	App      AppConfig      `mapstructure:"app"`
 	Database DatabaseConfig `mapstructure:"database"`
 	Redis    RedisConfig    `mapstructure:"redis"`
 	Server   ServerConfig   `mapstructure:"server"`
@@ -26,6 +27,10 @@ type DatabaseConfig struct {
 	Password string `mapstructure:"password"`
 	DBName   string `mapstructure:"dbname"`
 	SSLMode  string `mapstructure:"sslmode"`
+}
+
+type AppConfig struct {
+	Domain string `mapstructure:"domain"`
 }
 
 type RedisConfig struct {
@@ -114,6 +119,7 @@ func setDefaults() {
 	viper.SetDefault("auth.kavenegar_api_key", "")
 	viper.SetDefault("auth.otp_template", "dunhayat-otp")
 
+	viper.SetDefault("app.domain", "http://localhost:8080")
 	viper.SetDefault("env", "development")
 	viper.SetDefault("log.level", "info")
 
