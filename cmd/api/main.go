@@ -191,6 +191,7 @@ func main() {
 		MerchantID: cfg.Payment.Zibal.MerchantID,
 		BaseURL:    cfg.Payment.Zibal.BaseURL,
 		Timeout:    time.Duration(cfg.Payment.Zibal.Timeout) * time.Second,
+		APIToken:   cfg.Payment.Zibal.APIToken,
 	})
 
 	paymentsOrderAdapter := orderAdapter.NewPaymentsOrderAdapter(
@@ -200,6 +201,7 @@ func main() {
 	initiatePaymentUseCase := paymentUseCase.NewInitiatePaymentUseCase(
 		paymentsOrderAdapter,
 		zibalClient,
+		log,
 	)
 	verifyPaymentUseCase := paymentUseCase.NewVerifyPaymentUseCase(
 		paymentsOrderAdapter,

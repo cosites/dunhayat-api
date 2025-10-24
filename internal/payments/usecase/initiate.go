@@ -7,7 +7,10 @@ import (
 
 	"dunhayat-api/internal/payments"
 	"dunhayat-api/internal/payments/port"
+	"dunhayat-api/pkg/logger"
 	"dunhayat-api/pkg/payment"
+
+	"go.uber.org/zap"
 )
 
 type InitiatePaymentUseCase interface {
@@ -20,15 +23,18 @@ type InitiatePaymentUseCase interface {
 type initiatePaymentUseCase struct {
 	orderPort   port.OrderPort
 	zibalClient *payment.ZibalClient
+	logger      logger.Interface
 }
 
 func NewInitiatePaymentUseCase(
 	orderPort port.OrderPort,
 	zibalClient *payment.ZibalClient,
+	logger logger.Interface,
 ) InitiatePaymentUseCase {
 	return &initiatePaymentUseCase{
 		orderPort:   orderPort,
 		zibalClient: zibalClient,
+		logger:      logger,
 	}
 }
 
@@ -43,12 +49,27 @@ func (uc *initiatePaymentUseCase) Execute(
 		Description: req.Description,
 	}
 
+	uc.logger.Info("Initiating Zibal payment request",
+		zap.String("order_id", req.OrderID.String()),
+		zap.Int("amount", req.Amount),
+		zap.String("callback_url", req.CallbackURL),
+	)
+
 	zibalResp, err := uc.zibalClient.CreatePaymentRequest(zibalReq)
 	if err != nil {
+		uc.logger.Error("Zibal payment request failed",
+			zap.String("order_id", req.OrderID.String()),
+			zap.Error(err),
+		)
 		return nil, fmt.Errorf(
 			"failed to create zibal payment request: %w", err,
 		)
 	}
+
+	uc.logger.Info("Zibal payment request successful",
+		zap.String("order_id", req.OrderID.String()),
+		zap.String("track_id", zibalResp.TrackID),
+	)
 
 	if err := uc.orderPort.SetSaleTrackingCode(
 		ctx, req.OrderID, zibalResp.TrackID,
