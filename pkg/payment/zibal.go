@@ -22,7 +22,7 @@ type ZibalClient struct {
 }
 
 type ZibalPaymentRequest struct {
-	MerchantID        string             `json:"merchantId"`
+	MerchantID        string             `json:"merchant"`
 	Amount            int                `json:"amount"`
 	OrderID           string             `json:"orderId"`
 	CallbackURL       string             `json:"callbackUrl"`
@@ -39,13 +39,13 @@ type MultiplexingInfo struct {
 
 type ZibalPaymentResponse struct {
 	Result  int    `json:"result"`
-	TrackID string `json:"trackId"`
+	TrackID int64  `json:"trackId"`
 	Message string `json:"message"`
 }
 
 type ZibalVerifyRequest struct {
 	MerchantID string `json:"merchantId"`
-	TrackID    string `json:"trackId"`
+	TrackID    int64  `json:"trackId"`
 }
 
 type ZibalVerifyResponse struct {
@@ -60,7 +60,7 @@ type ZibalVerifyResponse struct {
 type ZibalCallbackData struct {
 	Success          bool   `json:"success"`
 	Status           int    `json:"status"`
-	TrackID          string `json:"trackId"`
+	TrackID          int64  `json:"trackId"`
 	OrderID          string `json:"orderId"`
 	Amount           int    `json:"amount"`
 	CardNumber       string `json:"cardNumber"`
@@ -209,6 +209,6 @@ func (c *ZibalClient) VerifyPayment(
 	return &verifyResp, nil
 }
 
-func (c *ZibalClient) GetPaymentURL(trackID string) string {
-	return fmt.Sprintf("%s/start/%s", c.config.BaseURL, trackID)
+func (c *ZibalClient) GetPaymentURL(trackID int64) string {
+	return fmt.Sprintf("%s/start/%d", c.config.BaseURL, trackID)
 }

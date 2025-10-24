@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"dunhayat-api/internal/payments"
@@ -48,7 +49,12 @@ func (uc *verifyPaymentUseCase) Execute(
 		return nil, errors.New("sale has no tracking code")
 	}
 
-	zibalReq := payment.ZibalVerifyRequest{TrackID: *sale.TrackingCode}
+	trackID, err := strconv.ParseInt(*sale.TrackingCode, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid tracking code: %w", err)
+	}
+
+	zibalReq := payment.ZibalVerifyRequest{TrackID: trackID}
 	zibalResp, err := uc.zibalClient.VerifyPayment(zibalReq)
 	if err != nil {
 		return nil, fmt.Errorf(
