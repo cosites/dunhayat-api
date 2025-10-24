@@ -1,6 +1,7 @@
 package http
 
 import (
+	"dunhayat-api/internal/auth/http"
 	"dunhayat-api/internal/orders"
 	"dunhayat-api/internal/orders/usecase"
 
@@ -20,6 +21,14 @@ func NewOrderHandler(
 }
 
 func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
+	// Extract user ID from authentication context
+	userID, ok := http.GetUserIDFromContext(c)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Authentication required",
+		})
+	}
+
 	var req orders.CreateOrderRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -27,7 +36,7 @@ func (h *OrderHandler) CreateOrder(c *fiber.Ctx) error {
 		})
 	}
 
-	order, err := h.createOrderUseCase.Execute(c.Context(), &req)
+	order, err := h.createOrderUseCase.Execute(c.Context(), userID, &req)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(
 			fiber.Map{
