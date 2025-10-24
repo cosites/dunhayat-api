@@ -64,6 +64,7 @@ type ZibalConfig struct {
 	MerchantID string `mapstructure:"merchant_id"`
 	BaseURL    string `mapstructure:"base_url"`
 	Timeout    int    `mapstructure:"timeout"`
+	APIToken   string `mapstructure:"api_token"`
 }
 
 func Load(configFile string) (*Config, error) {
@@ -133,6 +134,7 @@ func setDefaults() {
 	viper.SetDefault("payment.zibal.merchant_id", "")
 	viper.SetDefault("payment.zibal.base_url", "https://gateway.zibal.ir/v1")
 	viper.SetDefault("payment.zibal.timeout", 30)
+	viper.SetDefault("payment.zibal.api_token", "")
 }
 
 func (c *DatabaseConfig) GetDSN() string {
