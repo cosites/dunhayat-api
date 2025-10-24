@@ -6,6 +6,11 @@ The system employs vertical slicing to ensure domain-driven separation of
 concerns, with clear delineation between business logic, use cases, and
 infrastructure components for optimal maintainability and testability.
 
+> [!NOTE]
+> This project is under heavy development and may not yet meet ultimate strict
+> architectural compliance. Breaking changes and architectural refinements
+> are expected.
+
 ## Architecture
 
 This project follows **vertical slicing** architecture where each domain
