@@ -50,7 +50,6 @@ type CartReservation struct {
 }
 
 type CreateOrderRequest struct {
-	UserID      uuid.UUID          `json:"user_id" binding:"required"`
 	Items       []OrderItemRequest `json:"items" binding:"required,min=1"`
 	Address     string             `json:"address" binding:"required"`
 	PostalCode  string             `json:"postal_code" binding:"required"`
